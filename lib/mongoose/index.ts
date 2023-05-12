@@ -17,7 +17,7 @@ export const connectToDatabase = async () => {
     // console.log("Connecting to ", uri);
     const connectMongo = await connect(uri, options);
 
-    // await handleEvents()
+    // await handleEvents();
 
     return connectMongo;
   }

@@ -1,5 +1,5 @@
 import { connectToDatabase } from "@/lib/mongoose";
-import { Holder, IHolder } from "@/lib/mongoose/Models";
+import { Holder } from "@/lib/mongoose/Models";
 import { NextResponse } from "next/server";
 
 connectToDatabase();
