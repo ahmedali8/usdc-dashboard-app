@@ -7,7 +7,7 @@ connectToDatabase();
 export async function GET() {
   try {
     const lastBlock = await LastBlock.find();
-    console.log("lastBlock: ", lastBlock);
+    // console.log("lastBlock: ", lastBlock);
     return NextResponse.json(lastBlock);
   } catch {
     return NextResponse.json("error", {

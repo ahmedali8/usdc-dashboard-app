@@ -7,7 +7,7 @@ connectToDatabase();
 export async function GET() {
   try {
     const holders = await Holder.find();
-    console.log("holders: ", holders);
+    // console.log("holders: ", holders);
     return NextResponse.json(holders);
   } catch {
     return NextResponse.json("error", {
