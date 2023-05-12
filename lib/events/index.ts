@@ -130,5 +130,5 @@ export async function handleEvents() {
   await subscribeTransferEvent(contract);
 
   // loop: 100 ka batch logTransferEvents() from: lastBlock to: currentBlock
-  await computePastTransferEvents(contract, lastBlock, lastBlock + 100);
+  await computePastTransferEvents(contract, lastBlock, currentBlock);
 }
