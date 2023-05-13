@@ -1,13 +1,11 @@
-import { connectToDatabase } from "@/lib/mongoose";
-import { LastBlock, ILastBlock } from "@/lib/mongoose/Models";
+import { getLastBlock } from "@/lib/mongo/lastBlock";
 import { NextResponse } from "next/server";
-
-connectToDatabase();
 
 export async function GET() {
   try {
-    const lastBlock = await LastBlock.find();
-    // console.log("lastBlock: ", lastBlock);
+    const { lastBlock, error } = await getLastBlock();
+    if (error) throw new Error(error);
+
     return NextResponse.json(lastBlock);
   } catch {
     return NextResponse.json("error", {

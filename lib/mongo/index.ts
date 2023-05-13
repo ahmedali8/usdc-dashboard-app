@@ -1,4 +1,4 @@
-import { connect, connection } from "mongoose";
+import { ConnectionStates, connect, connection } from "mongoose";
 import { handleEvents } from "../events";
 
 if (!process.env.MONGODB_URI) {
@@ -14,11 +14,12 @@ const options: any = {
 
 export const connectToDatabase = async () => {
   if (!connection.readyState) {
-    // console.log("Connecting to ", uri);
+    console.log("Connecting to mongodb uri");
     const connectMongo = await connect(uri, options);
-
-    // await handleEvents();
-
     return connectMongo;
   }
 };
+
+if (connection.readyState === ConnectionStates.connected) {
+  handleEvents();
+}

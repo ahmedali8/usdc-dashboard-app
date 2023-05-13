@@ -1,6 +1,6 @@
 import { type Contract, ethers, BigNumber } from "ethers";
 import { ABI } from "./abi";
-import { Holder, LastBlock } from "../mongoose/Models";
+import { Holder, LastBlock } from "../mongo/Models";
 import { LAST_BLOCK_ID, USDC_ADDRESS, USDC_DECIMALS } from "../utils";
 
 if (!process.env.INFURA_PROJECT_ID) {

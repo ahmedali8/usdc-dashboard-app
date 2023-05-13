@@ -1,9 +1,27 @@
-import { getHolders } from "@/lib/mongoose/holders";
+import { getHolders } from "@/lib/mongo/holders";
+
+async function fetchHolders(pageNumber: number, nPerPage: number) {
+  const { holders } = await getHolders(pageNumber, nPerPage);
+  if (!holders) throw new Error("Failed to fetch holders");
+
+  return holders;
+}
 
 export default async function Home() {
-  const res = await getHolders();
-  // const res = await fetch("localhost:3000/api/holders");
-  console.log("res: ", res);
+  // const holders = await fetchHolders();
+  // // console.log("holders: ", holders);
 
-  return <h1>hi</h1>;
+  // return (
+  //   <div>
+  //     <ul>
+  //       {holders.map((holder) => (
+  //         <li key={holder._id}>
+  //           {holder.user}: {holder.balance}
+  //         </li>
+  //       ))}
+  //     </ul>
+  //   </div>
+  // );
+
+  return "hi";
 }

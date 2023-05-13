@@ -1,13 +1,27 @@
-import { connectToDatabase } from "@/lib/mongoose";
-import { Holder } from "@/lib/mongoose/Models";
-import { NextResponse } from "next/server";
+import { getHolders } from "@/lib/mongo/holders";
+import { DEFAULT_N_PER_PAGE, DEFAULT_PAGE_NUMBER } from "@/lib/utils";
+import { NextRequest, NextResponse } from "next/server";
 
-connectToDatabase();
+export async function GET(request: NextRequest) {
+  let pageNumber: number = DEFAULT_PAGE_NUMBER;
+  let nPerPage: number = DEFAULT_N_PER_PAGE;
 
-export async function GET() {
   try {
-    const holders = await Holder.find();
-    // console.log("holders: ", holders);
+    const url = request.nextUrl;
+
+    if (url.searchParams.has("pageNumber")) {
+      pageNumber = Number(url.searchParams.get("pageNumber")!);
+      console.log("pageNumber: ", pageNumber);
+    }
+
+    if (url.searchParams.has("nPerPage")) {
+      nPerPage = Number(url.searchParams.get("nPerPage")!);
+      console.log("nPerPage: ", nPerPage);
+    }
+
+    const { holders, error } = await getHolders(pageNumber, nPerPage);
+    if (error) throw new Error(error);
+
     return NextResponse.json(holders);
   } catch {
     return NextResponse.json("error", {
