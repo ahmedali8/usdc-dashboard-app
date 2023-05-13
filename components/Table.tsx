@@ -1,5 +1,6 @@
 "use client";
 
+import { getAddress } from "ethers/lib/utils";
 import React, { useCallback, useEffect, useState } from "react";
 
 import Loader from "./Loader";
@@ -15,7 +16,9 @@ type TableProps = {
 };
 
 export default function Table({ pageNumber }: TableProps) {
-  const [holders, setHolders] = useState<Holder[] | undefined>(undefined);
+  const [holders, setHolders] = useState<Holder[] | null>(null);
+
+  const getChecksummedAddress = useCallback((addr: string) => getAddress(addr), []);
 
   const fetchHolders = useCallback(async () => {
     const res = await fetch(`/api/holders?pageNumber=${pageNumber}`);
@@ -28,7 +31,7 @@ export default function Table({ pageNumber }: TableProps) {
     fetchHolders();
   }, [fetchHolders]);
 
-  if (holders === undefined) {
+  if (!holders) {
     return <Loader />;
   }
 
@@ -42,9 +45,9 @@ export default function Table({ pageNumber }: TableProps) {
           </tr>
         </thead>
         <tbody>
-          {holders.map((holder) => (
+          {holders?.map((holder) => (
             <tr key={holder._id}>
-              <td className="border px-4 py-2">{holder.user}</td>
+              <td className="border px-4 py-2">{getChecksummedAddress(holder.user)}</td>
               <td className="border px-4 py-2">{holder.balance}</td>
             </tr>
           ))}
