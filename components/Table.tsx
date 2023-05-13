@@ -48,7 +48,7 @@ export default function Table({ pageNumber }: TableProps) {
           {holders?.map((holder) => (
             <tr key={holder._id}>
               <td className="border px-4 py-2">{getChecksummedAddress(holder.user)}</td>
-              <td className="border px-4 py-2">{holder.balance}</td>
+              <td className="border px-4 py-2">{Number(holder.balance)}</td>
             </tr>
           ))}
         </tbody>

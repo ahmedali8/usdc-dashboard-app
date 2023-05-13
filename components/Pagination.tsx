@@ -4,6 +4,7 @@ import { DEFAULT_PAGE_NUMBER } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import Button from "./Button";
+import Loader from "./Loader";
 import Table from "./Table";
 
 export default function Pagination() {
@@ -20,6 +21,10 @@ export default function Pagination() {
   useEffect(() => {
     fetchHoldersCount();
   }, [fetchHoldersCount]);
+
+  if (holdersCount === 0) {
+    return <Loader />;
+  }
 
   return (
     <div className="flex flex-col mt-4">
