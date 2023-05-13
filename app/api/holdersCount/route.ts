@@ -6,7 +6,9 @@ export async function GET() {
     const { holdersCount, error } = await getHoldersCount();
     if (error) throw new Error(error);
 
-    return NextResponse.json(holdersCount);
+    return NextResponse.json(holdersCount, {
+      status: 200,
+    });
   } catch {
     return NextResponse.json("error", {
       status: 500,

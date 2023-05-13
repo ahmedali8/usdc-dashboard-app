@@ -6,7 +6,9 @@ export async function GET() {
     const { lastBlock, error } = await getLastBlock();
     if (error) throw new Error(error);
 
-    return NextResponse.json(lastBlock);
+    return NextResponse.json(lastBlock, {
+      status: 200,
+    });
   } catch {
     return NextResponse.json("error", {
       status: 500,

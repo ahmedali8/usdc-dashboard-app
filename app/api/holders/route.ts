@@ -20,7 +20,9 @@ export async function GET(request: NextRequest) {
     const { holders, error } = await getHolders(pageNumber, nPerPage);
     if (error) throw new Error(error);
 
-    return NextResponse.json(holders);
+    return NextResponse.json(holders, {
+      status: 200,
+    });
   } catch {
     return NextResponse.json("error", {
       status: 500,
