@@ -1,7 +1,14 @@
-import { BigNumber, type Contract, ethers } from "ethers";
+import type { BigNumber, Contract } from "ethers";
+import { ethers } from "ethers";
 
 import { Holder, LastBlock } from "../mongo/Models";
-import { LAST_BLOCK_ID, USDC_ADDRESS, USDC_DECIMALS } from "../utils";
+import {
+  BATCH_SIZE,
+  FIRST_MARCH_BLOCK_NUMBER,
+  LAST_BLOCK_ID,
+  USDC_ADDRESS,
+  convertToUsdcBal,
+} from "../utils";
 import { ABI } from "./abi";
 
 if (!process.env.INFURA_PROJECT_ID) {
@@ -33,41 +40,55 @@ async function computePastTransferEvents(
   fromBlock: number,
   toBlock: number
 ) {
-  const batchSize = 100;
+  const batchSize = BATCH_SIZE;
 
   const cycle = Math.ceil((toBlock - fromBlock) / batchSize); // e.g. (17244771-16736849)/100 = 5079 times loop
 
   // create batches
   for (let i = 0; i < cycle; i++) {
-    const batchStart = fromBlock + i * 100;
-    const batchEnd = Math.min(fromBlock + (i + 1) * 100, toBlock);
+    const batchStart = fromBlock + i * batchSize;
+    const batchEnd = Math.min(fromBlock + (i + 1) * batchSize, toBlock);
 
     console.log(`batch no. ${i}: fromBlock=${batchStart}, toBlock=${batchEnd}`);
 
     const events = await getPastTransferEvents(contractInstance, batchStart, batchEnd);
 
     for (const event of events) {
-      await extractUserFromEvent(event, batchEnd);
+      await extractUserFromEvent(contractInstance, event, batchEnd);
     }
   }
 }
 
-async function extractUserFromEvent(event: ethers.Event, blockNumber: number) {
+async function extractUserFromEvent(
+  contractInstance: Contract,
+  event: ethers.Event,
+  blockNumber: number
+) {
   const from: string = event?.args?.from?.toLowerCase();
   const to: string = event?.args?.to?.toLowerCase();
   const value: BigNumber = event?.args?.value;
-  const amount: number = value.div(USDC_DECIMALS).toNumber();
+  const amount: number = convertToUsdcBal(value);
 
-  handleHolder(from, to, amount);
+  handleHolder(contractInstance, from, to, amount);
 
   // update last block number in mongodb
   await setLastBlockNumber(blockNumber);
 }
 
-async function handleHolder(from: string, to: string, amount: number) {
+async function handleHolder(contractInstance: Contract, from: string, to: string, amount: number) {
   // initialize
-  if (!userObj[from]) userObj[from] = 0;
-  if (!userObj[to]) userObj[to] = 0;
+  if (!userObj[from]) {
+    const fromBal: BigNumber = await contractInstance.balanceOf(from, {
+      blockTag: FIRST_MARCH_BLOCK_NUMBER,
+    });
+    userObj[from] = convertToUsdcBal(fromBal);
+  }
+  if (!userObj[to]) {
+    const toBal: BigNumber = await contractInstance.balanceOf(to, {
+      blockTag: FIRST_MARCH_BLOCK_NUMBER,
+    });
+    userObj[to] = convertToUsdcBal(toBal);
+  }
 
   // update userObj
   userObj[from] = userObj[from] - amount;
@@ -79,8 +100,8 @@ async function handleHolder(from: string, to: string, amount: number) {
 }
 
 async function subscribeTransferEvent(contractInstance: Contract) {
-  contractInstance.on("Transfer", async function (from, to, amount) {
-    await handleHolder(from, to, amount);
+  contractInstance.on("Transfer", async function (from: string, to: string, amount: BigNumber) {
+    await handleHolder(contractInstance, from, to, convertToUsdcBal(amount));
   });
 }
 
@@ -97,13 +118,11 @@ async function setLastBlockNumber(newBlockNumber: number) {
 }
 
 async function updateHolder(user: string, balance: number) {
-  const holder = await Holder.findOne({ user });
-
-  if (!holder) {
-    const newHolder = new Holder({ user, balance });
+  try {
+    await Holder.findOneAndUpdate({ user: user }, { balance: balance }, { upsert: true });
+  } catch (err) {
+    const newHolder = new Holder({ user: user, balance: balance });
     await newHolder.save();
-  } else {
-    await Holder.updateOne({ user }, { balance });
   }
 }
 

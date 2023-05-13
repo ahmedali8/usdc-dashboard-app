@@ -8,9 +8,12 @@ export interface IHolder extends Document {
 const HolderSchema: Schema = new Schema({
   user: {
     type: String,
+    required: true,
+    unique: true,
   },
   balance: {
     type: String,
+    required: true,
   },
 });
 

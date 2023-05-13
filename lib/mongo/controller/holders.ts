@@ -9,7 +9,7 @@ export async function getHolders(
   nPerPage: number = DEFAULT_N_PER_PAGE
 ) {
   try {
-    const holders = await Holder.find({})
+    const holders = await Holder.find({ balance: { $gt: 0 } })
       .skip(pageNumber > 0 ? (pageNumber - 1) * nPerPage : 0)
       .limit(nPerPage);
 
