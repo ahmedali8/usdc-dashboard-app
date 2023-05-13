@@ -1,4 +1,5 @@
 import { ConnectionStates, connect, connection } from "mongoose";
+
 import { handleEvents } from "../events";
 
 if (!process.env.MONGODB_URI) {

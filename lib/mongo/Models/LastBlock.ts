@@ -1,4 +1,4 @@
-import mongoose, { Document, model, Model, Schema } from "mongoose";
+import mongoose, { Document, Model, Schema, model } from "mongoose";
 
 export interface ILastBlock extends Document {
   blockNumber: number;

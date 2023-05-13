@@ -1,7 +1,8 @@
-import { type Contract, ethers, BigNumber } from "ethers";
-import { ABI } from "./abi";
+import { BigNumber, type Contract, ethers } from "ethers";
+
 import { Holder, LastBlock } from "../mongo/Models";
 import { LAST_BLOCK_ID, USDC_ADDRESS, USDC_DECIMALS } from "../utils";
+import { ABI } from "./abi";
 
 if (!process.env.INFURA_PROJECT_ID) {
   throw new Error("Please add your INFURA_PROJECT_ID to .env.local");
@@ -43,11 +44,7 @@ async function computePastTransferEvents(
 
     console.log(`batch no. ${i}: fromBlock=${batchStart}, toBlock=${batchEnd}`);
 
-    const events = await getPastTransferEvents(
-      contractInstance,
-      batchStart,
-      batchEnd
-    );
+    const events = await getPastTransferEvents(contractInstance, batchStart, batchEnd);
 
     for (const event of events) {
       await extractUserFromEvent(event, batchEnd);
