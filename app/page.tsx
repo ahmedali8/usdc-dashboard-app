@@ -1,13 +1,50 @@
-import { getHolders } from "@/lib/mongo/holders";
+"use client";
 
-async function fetchHolders(pageNumber: number, nPerPage: number) {
-  const { holders } = await getHolders(pageNumber, nPerPage);
-  if (!holders) throw new Error("Failed to fetch holders");
+import { DEFAULT_PAGE_NUMBER } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
 
-  return holders;
-}
+// import { getHolders } from "@/lib/mongo/holders";
 
-export default async function Home() {
+// async function fetchHolders(pageNumber: number, nPerPage: number) {
+//   const { holders } = await getHolders(pageNumber, nPerPage);
+//   if (!holders) throw new Error("Failed to fetch holders");
+
+//   return holders;
+// }
+
+export default function Home() {
+  const [pageNumber, setPageNumber] = useState<number>(DEFAULT_PAGE_NUMBER);
+  const [holdersCount, setHoldersCount] = useState<number>(0);
+
+  const fetchHoldersCount = useCallback(async function () {
+    const res: Response = await fetch("/api/holdersCount");
+    const holdersCount: number = await res.json();
+
+    setHoldersCount(holdersCount);
+  }, []);
+
+  useEffect(() => {
+    fetchHoldersCount();
+  }, []);
+
+  return (
+    <div>
+      <div>{pageNumber}</div>
+      <button
+        onClick={() => setPageNumber((prev) => (prev < 1 ? 0 : prev - 1))}
+      >
+        prev
+      </button>
+      <button
+        onClick={() =>
+          setPageNumber((prev) => (prev > holdersCount ? prev : prev + 1))
+        }
+      >
+        next
+      </button>
+    </div>
+  );
+
   // const holders = await fetchHolders();
   // // console.log("holders: ", holders);
 
@@ -22,6 +59,4 @@ export default async function Home() {
   //     </ul>
   //   </div>
   // );
-
-  return "hi";
 }

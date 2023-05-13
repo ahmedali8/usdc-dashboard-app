@@ -1,6 +1,6 @@
-import { connectToDatabase } from ".";
-import { DEFAULT_N_PER_PAGE, DEFAULT_PAGE_NUMBER } from "../utils";
-import { Holder } from "./Models";
+import { connectToDatabase } from "..";
+import { DEFAULT_N_PER_PAGE, DEFAULT_PAGE_NUMBER } from "../../utils";
+import { Holder } from "../Models";
 
 connectToDatabase();
 
@@ -16,5 +16,15 @@ export async function getHolders(
     return { holders };
   } catch (error) {
     return { error: "Failed to fetch holders" };
+  }
+}
+
+export async function getHoldersCount() {
+  try {
+    const holdersCount = await Holder.countDocuments({});
+
+    return { holdersCount };
+  } catch (error) {
+    return { error: "Failed to fetch holders count" };
   }
 }

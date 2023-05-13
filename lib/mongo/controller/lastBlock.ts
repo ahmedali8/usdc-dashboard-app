@@ -1,6 +1,6 @@
-import { connectToDatabase } from ".";
-import { LAST_BLOCK_ID } from "../utils";
-import { LastBlock } from "./Models";
+import { connectToDatabase } from "..";
+import { LAST_BLOCK_ID } from "../../utils";
+import { LastBlock } from "../Models";
 
 connectToDatabase();
 

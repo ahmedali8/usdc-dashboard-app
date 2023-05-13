@@ -1,4 +1,4 @@
-import { getHolders } from "@/lib/mongo/holders";
+import { getHolders } from "@/lib/mongo/controller/holders";
 import { DEFAULT_N_PER_PAGE, DEFAULT_PAGE_NUMBER } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
