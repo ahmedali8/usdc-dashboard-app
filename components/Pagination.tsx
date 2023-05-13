@@ -44,7 +44,7 @@ export default function Pagination() {
 
         <div>
           <span className="text-gray-700">
-            Page {pageNumber} of {holdersCount}
+            Page {pageNumber + 1} of {holdersCount}
           </span>
         </div>
       </div>

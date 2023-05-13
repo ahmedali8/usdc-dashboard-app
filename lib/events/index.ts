@@ -80,7 +80,6 @@ async function handleHolder(from: string, to: string, amount: number) {
 
 async function subscribeTransferEvent(contractInstance: Contract) {
   contractInstance.on("Transfer", async function (from, to, amount) {
-    // console.log("New Transfer Event");
     await handleHolder(from, to, amount);
   });
 }

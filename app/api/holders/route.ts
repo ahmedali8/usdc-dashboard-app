@@ -11,12 +11,10 @@ export async function GET(request: NextRequest) {
 
     if (url.searchParams.has("pageNumber")) {
       pageNumber = Number(url.searchParams.get("pageNumber")!);
-      console.log("pageNumber: ", pageNumber);
     }
 
     if (url.searchParams.has("nPerPage")) {
       nPerPage = Number(url.searchParams.get("nPerPage")!);
-      console.log("nPerPage: ", nPerPage);
     }
 
     const { holders, error } = await getHolders(pageNumber, nPerPage);
