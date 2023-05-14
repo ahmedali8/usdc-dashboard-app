@@ -14,12 +14,14 @@ const options: any = {
 };
 
 export const connectToDatabase = async () => {
-  if (!connection.readyState) {
+  if (connection.readyState === ConnectionStates.disconnected) {
     console.log("Connecting to mongodb uri");
     const connectMongo = await connect(uri, options);
     return connectMongo;
   }
 };
+
+console.log("connection status: ", connection.readyState);
 
 if (connection.readyState === ConnectionStates.connected) {
   handleEvents();

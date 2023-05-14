@@ -14,11 +14,11 @@ import { ABI } from "./abi";
 if (!process.env.INFURA_PROJECT_ID) {
   throw new Error("Please add your INFURA_PROJECT_ID to .env.local");
 }
-const infuraProjectId: string = process.env.INFURA_PROJECT_ID;
+const INFURA_PROJECT_ID: string = process.env.INFURA_PROJECT_ID;
 const userObj: Record<string, number> = {};
 
-async function initProvider() {
-  return new ethers.providers.InfuraProvider("mainnet", infuraProjectId);
+async function initInfuraProvider() {
+  return new ethers.providers.InfuraProvider("mainnet", INFURA_PROJECT_ID);
 }
 
 async function initContract(provider: ethers.providers.Provider) {
@@ -42,7 +42,7 @@ async function computePastTransferEvents(
 ) {
   const batchSize = BATCH_SIZE;
 
-  const cycle = Math.ceil((toBlock - fromBlock) / batchSize); // e.g. (17244771-16736849)/100 = 5079 times loop
+  const cycle = Math.ceil((toBlock - fromBlock) / batchSize);
 
   // create batches
   for (let i = 0; i < cycle; i++) {
@@ -53,9 +53,9 @@ async function computePastTransferEvents(
 
     const events = await getPastTransferEvents(contractInstance, batchStart, batchEnd);
 
-    for (const event of events) {
-      await extractUserFromEvent(contractInstance, event, batchEnd);
-    }
+    await Promise.allSettled(
+      events.map((event) => extractUserFromEvent(contractInstance, event, batchEnd))
+    );
   }
 }
 
@@ -75,19 +75,26 @@ async function extractUserFromEvent(
   await setLastBlockNumber(blockNumber);
 }
 
+async function getPastBalanceOf(contractInstance: Contract, addr: string) {
+  try {
+    const bal: BigNumber = await contractInstance.balanceOf(addr, {
+      blockTag: FIRST_MARCH_BLOCK_NUMBER,
+    });
+    return bal;
+  } catch (error) {
+    console.log("error: ", error);
+  }
+}
+
 async function handleHolder(contractInstance: Contract, from: string, to: string, amount: number) {
   // initialize
   if (!userObj[from]) {
-    const fromBal: BigNumber = await contractInstance.balanceOf(from, {
-      blockTag: FIRST_MARCH_BLOCK_NUMBER,
-    });
-    userObj[from] = convertToUsdcBal(fromBal);
+    const fromBal = await getPastBalanceOf(contractInstance, from);
+    userObj[from] = fromBal === undefined ? 0 : convertToUsdcBal(fromBal);
   }
   if (!userObj[to]) {
-    const toBal: BigNumber = await contractInstance.balanceOf(to, {
-      blockTag: FIRST_MARCH_BLOCK_NUMBER,
-    });
-    userObj[to] = convertToUsdcBal(toBal);
+    const toBal = await getPastBalanceOf(contractInstance, to);
+    userObj[to] = toBal === undefined ? 0 : convertToUsdcBal(toBal);
   }
 
   // update userObj
@@ -128,7 +135,7 @@ async function updateHolder(user: string, balance: number) {
 
 export async function handleEvents() {
   // init provider
-  const provider = await initProvider();
+  const provider = await initInfuraProvider();
 
   // init contract
   const contract = await initContract(provider);
